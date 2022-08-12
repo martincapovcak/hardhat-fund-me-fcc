@@ -23,7 +23,7 @@ contract FundMe {
     uint256 public constant MINIMUM_USD = 50 * 1e18;
 
     address[] public funders;
-    mapping(address => uint256) public adressToAmountFunded;
+    mapping(address => uint256) public addressToAmountFunded;
 
     AggregatorV3Interface public priceFeed;
 
@@ -49,14 +49,18 @@ contract FundMe {
     /// @notice This function fund this contract
     /// @dev This implements price feeds as our library
     function fund() public payable {
-        require(msg.value.getConversionRate(priceFeed) >= MINIMUM_USD, "Didn't send enough!");
+        require(
+            msg.value.getConversionRate(priceFeed) >= MINIMUM_USD,
+            "You need to spend more ETH!"
+        );
+
         funders.push(msg.sender);
-        adressToAmountFunded[msg.sender] = msg.value;
+        addressToAmountFunded[msg.sender] = msg.value;
     }
 
-    function widraw() public onlyOwner {
+    function widraw() public payable onlyOwner {
         for (uint256 i = 0; i < funders.length; i++) {
-            adressToAmountFunded[funders[i]] = 0;
+            addressToAmountFunded[funders[i]] = 0;
         }
 
         funders = new address[](0);

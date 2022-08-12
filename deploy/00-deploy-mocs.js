@@ -5,11 +5,11 @@ const { network } = require("hardhat")
 const { developementChains, DECIMALS, INITIAL_ANSWER } = require("../helper-hardhat-config.js")
 
 module.exports = async (hre) => {
-    console.log("\n\n@ Spinning-up Mock..")
+    //console.log("\n\n@ Spinning-up Mock..")
     const { getNamedAccounts, deployments } = hre
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
-    console.log("->")
+    //console.log("->")
 
     if (developementChains.includes(network.name)) {
         log("-> Local network detected!")
