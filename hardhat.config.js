@@ -1,9 +1,10 @@
 //dependencies
 require("@nomicfoundation/hardhat-toolbox")
-require("dotenv").config()
 require("@nomiclabs/hardhat-etherscan")
 require("hardhat-gas-reporter")
 require("solidity-coverage")
+require("hardhat-deploy")
+require("dotenv").config()
 
 /** @type import('hardhat/config').HardhatUserConfig */
 
@@ -13,12 +14,17 @@ const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "key"
 const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY || "key"
 
 module.exports = {
+    //solidity: "0.8.9",
+    solidity: {
+        compilers: [{ version: "0.8.9" }, { version: "0.6.6" }],
+    },
     detaultNetwork: "hardhat",
     networks: {
         rinkeby: {
             url: RINKEBY_RPC_URL,
             accounts: [PRIVATE_KEY],
             chainId: 4,
+            blockConfirmations: 6,
         },
         localhost: {
             url: " http://127.0.0.1:8545/",
@@ -26,9 +32,16 @@ module.exports = {
             chainId: 31337,
         },
     },
-    solidity: "0.8.9",
     etherscan: {
         apiKey: ETHERSCAN_API_KEY,
+    },
+    namedAccounts: {
+        deployer: {
+            default: 0,
+        },
+        user: {
+            default: 1,
+        },
     },
     gasReporter: {
         enabled: false,

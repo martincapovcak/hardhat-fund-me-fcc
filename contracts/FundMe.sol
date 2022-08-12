@@ -1,12 +1,24 @@
 // SPDX-License-Identifier: MIT
+// Pragma
 pragma solidity ^0.8.9;
-
+// Imports
 import "hardhat/console.sol";
 import "./PriceConverter.sol";
+// Error Codes
+error FundMe__NotOwner();
 
+// Interfaces, Libraries, Contracts
+
+// NatSpec
+/// @title A contract for crowdfunding
+/// @author Martin Capovcak
+/// @notice This contract is to demo a sample funding contract
+/// @dev This implements price feeds as our library
 contract FundMe {
+    // Type Declarations
     using PriceConverter for uint256;
 
+    // State variables
     address public immutable i_owner;
     uint256 public constant MINIMUM_USD = 50 * 1e18;
 
@@ -15,16 +27,27 @@ contract FundMe {
 
     AggregatorV3Interface public priceFeed;
 
+    // Modifiers
+    modifier onlyOwner() {
+        if (msg.sender != i_owner) revert FundMe__NotOwner();
+        _;
+    }
+
     constructor(address _priceFeed) {
         i_owner = msg.sender;
         priceFeed = AggregatorV3Interface(_priceFeed);
     }
 
-    modifier onlyOwner() {
-        require(msg.sender == i_owner, "Only owner can do this.");
-        _;
+    receive() external payable {
+        fund();
     }
 
+    fallback() external payable {
+        fund();
+    }
+
+    /// @notice This function fund this contract
+    /// @dev This implements price feeds as our library
     function fund() public payable {
         require(msg.value.getConversionRate(priceFeed) >= MINIMUM_USD, "Didn't send enough!");
         funders.push(msg.sender);
@@ -39,13 +62,5 @@ contract FundMe {
         funders = new address[](0);
 
         payable(msg.sender).transfer(address(this).balance);
-    }
-
-    receive() external payable {
-        fund();
-    }
-
-    fallback() external payable {
-        fund();
     }
 }
