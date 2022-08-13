@@ -41,7 +41,7 @@ describe("FundMe", async () => {
         it("Sets the aggregator addresses correctly", async () => {
             //const { FundMe, MockV3Aggregator } = await loadFixture(deployedContract)
 
-            const response = await FundMe.priceFeed()
+            const response = await FundMe.s_priceFeed()
             await assert.equal(response, MockV3Aggregator.address)
         })
     })
@@ -57,13 +57,13 @@ describe("FundMe", async () => {
             //const { FundMe, deployer, sendValue } = await loadFixture(deployedContract)
 
             await FundMe.fund({ value: sendValue })
-            const response = await FundMe.addressToAmountFunded(deployer)
+            const response = await FundMe.s_addressToAmountFunded(deployer)
             assert.equal(response.toString(), sendValue.toString())
         })
 
-        it("Adds funder to an array of funders", async () => {
+        it("Adds funder to an array of s_funders", async () => {
             await FundMe.fund({ value: sendValue })
-            const funder = await FundMe.funders(0)
+            const funder = await FundMe.s_funders(0)
             expect(funder, deployer)
         })
     })
@@ -96,7 +96,7 @@ describe("FundMe", async () => {
             )
         })
 
-        it("allows us to widraw with multiple funders", async () => {
+        it("allows us to widraw with multiple s_funders", async () => {
             // Arrange
             const accounts = await ethers.getSigners()
             for (let i = 1; i < 6; i++) {
@@ -123,11 +123,11 @@ describe("FundMe", async () => {
                 endingDeployerBalance.add(gasCost).toString()
             )
 
-            // Make sure funders are reset propperly
-            await expect(FundMe.funders(0)).to.be.reverted
+            // Make sure s_funders are reset propperly
+            await expect(FundMe.s_funders(0)).to.be.reverted
 
             for (let i; i < 6; i++) {
-                expect(await FundMe.addressToAmountFunded(accounts[i].address), 0)
+                expect(await FundMe.s_addressToAmountFunded(accounts[i].address), 0)
             }
         })
 
@@ -136,6 +136,77 @@ describe("FundMe", async () => {
             const attacker = accounts[1]
             const attackerConnectedContract = await FundMe.connect(attacker)
             await expect(attackerConnectedContract.widraw()).to.be.reverted
+        })
+    })
+
+    describe("widraw-cheeper", async () => {
+        beforeEach(async () => {
+            await FundMe.fund({ value: sendValue })
+        })
+
+        it("widraw ETH from a single founder", async () => {
+            // Arrange
+            const startingFundMeBalance = await FundMe.provider.getBalance(FundMe.address)
+            const startingDeployerBalance = await FundMe.provider.getBalance(deployer)
+            // Act
+            const transactionResponse = await FundMe.cheeperWidraw()
+            const transactionReceipt = await transactionResponse.wait(1)
+
+            // Gascost
+            const { gasUsed, effectiveGasPrice } = transactionReceipt
+            const gasCost = gasUsed.mul(effectiveGasPrice)
+
+            const endingFundMeBalance = await FundMe.provider.getBalance(FundMe.address)
+            const endingDeployerBalance = await FundMe.provider.getBalance(deployer)
+
+            // Assert
+            expect(endingFundMeBalance, 0)
+            expect(
+                startingFundMeBalance.add(startingDeployerBalance).toString(),
+                endingDeployerBalance.add(gasCost).toString()
+            )
+        })
+
+        it("allows us to widraw with multiple s_funders", async () => {
+            // Arrange
+            const accounts = await ethers.getSigners()
+            for (let i = 1; i < 6; i++) {
+                const fundMeConnectedContract = await FundMe.connect(accounts[i])
+                await fundMeConnectedContract.fund({ value: sendValue })
+            }
+
+            const startingFundMeBalance = await FundMe.provider.getBalance(FundMe.address)
+            const startingDeployerBalance = await FundMe.provider.getBalance(deployer)
+
+            // Act
+            const transactionResponse = await FundMe.cheeperWidraw()
+            const transactionReceipt = await transactionResponse.wait(1)
+            const { gasUsed, effectiveGasPrice } = transactionReceipt
+            const gasCost = gasUsed.mul(effectiveGasPrice)
+
+            const endingFundMeBalance = await FundMe.provider.getBalance(FundMe.address)
+            const endingDeployerBalance = await FundMe.provider.getBalance(deployer)
+
+            // Assert
+            expect(endingFundMeBalance, 0)
+            expect(
+                startingFundMeBalance.add(startingDeployerBalance).toString(),
+                endingDeployerBalance.add(gasCost).toString()
+            )
+
+            // Make sure s_funders are reset propperly
+            await expect(FundMe.s_funders(0)).to.be.reverted
+
+            for (let i; i < 6; i++) {
+                expect(await FundMe.s_addressToAmountFunded(accounts[i].address), 0)
+            }
+        })
+
+        it("Only allows the owner to widraw", async () => {
+            const accounts = await ethers.getSigners()
+            const attacker = accounts[1]
+            const attackerConnectedContract = await FundMe.connect(attacker)
+            await expect(attackerConnectedContract.cheeperWidraw()).to.be.reverted
         })
     })
 })
