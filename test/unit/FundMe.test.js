@@ -35,13 +35,13 @@ describe("FundMe", async () => {
         it("Should set the right owner", async () => {
             //const { FundMe, deployer } = await loadFixture(deployedContract)
 
-            const response = await FundMe.i_owner()
+            const response = await FundMe.getOwner()
             expect(response, deployer.address)
         })
         it("Sets the aggregator addresses correctly", async () => {
             //const { FundMe, MockV3Aggregator } = await loadFixture(deployedContract)
 
-            const response = await FundMe.s_priceFeed()
+            const response = await FundMe.getPriceFeed()
             await assert.equal(response, MockV3Aggregator.address)
         })
     })
@@ -57,13 +57,13 @@ describe("FundMe", async () => {
             //const { FundMe, deployer, sendValue } = await loadFixture(deployedContract)
 
             await FundMe.fund({ value: sendValue })
-            const response = await FundMe.s_addressToAmountFunded(deployer)
+            const response = await FundMe.getAddressToAmountFunded(deployer)
             assert.equal(response.toString(), sendValue.toString())
         })
 
-        it("Adds funder to an array of s_funders", async () => {
+        it("Adds funder to an array of getFunder", async () => {
             await FundMe.fund({ value: sendValue })
-            const funder = await FundMe.s_funders(0)
+            const funder = await FundMe.getFunder(0)
             expect(funder, deployer)
         })
     })
@@ -96,7 +96,7 @@ describe("FundMe", async () => {
             )
         })
 
-        it("allows us to widraw with multiple s_funders", async () => {
+        it("allows us to widraw with multiple getFunder", async () => {
             // Arrange
             const accounts = await ethers.getSigners()
             for (let i = 1; i < 6; i++) {
@@ -123,11 +123,11 @@ describe("FundMe", async () => {
                 endingDeployerBalance.add(gasCost).toString()
             )
 
-            // Make sure s_funders are reset propperly
-            await expect(FundMe.s_funders(0)).to.be.reverted
+            // Make sure getFunder are reset propperly
+            await expect(FundMe.getFunder(0)).to.be.reverted
 
             for (let i; i < 6; i++) {
-                expect(await FundMe.s_addressToAmountFunded(accounts[i].address), 0)
+                expect(await FundMe.getAddressToAmountFunded(accounts[i].address), 0)
             }
         })
 
@@ -167,7 +167,7 @@ describe("FundMe", async () => {
             )
         })
 
-        it("allows us to widraw with multiple s_funders", async () => {
+        it("allows us to widraw with multiple getFunder", async () => {
             // Arrange
             const accounts = await ethers.getSigners()
             for (let i = 1; i < 6; i++) {
@@ -194,11 +194,11 @@ describe("FundMe", async () => {
                 endingDeployerBalance.add(gasCost).toString()
             )
 
-            // Make sure s_funders are reset propperly
-            await expect(FundMe.s_funders(0)).to.be.reverted
+            // Make sure getFunder are reset propperly
+            await expect(FundMe.getFunder(0)).to.be.reverted
 
             for (let i; i < 6; i++) {
-                expect(await FundMe.s_addressToAmountFunded(accounts[i].address), 0)
+                expect(await FundMe.getAddressToAmountFunded(accounts[i].address), 0)
             }
         })
 
