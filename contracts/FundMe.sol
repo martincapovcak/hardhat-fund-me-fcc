@@ -56,7 +56,7 @@ contract FundMe {
         s_addressToAmountFunded[msg.sender] = msg.value;
     }
 
-    function widraw() public payable onlyOwner {
+    function withdraw() public payable onlyOwner {
         for (uint256 i = 0; i < s_funders.length; i++) {
             s_addressToAmountFunded[s_funders[i]] = 0;
         }
@@ -66,7 +66,7 @@ contract FundMe {
         payable(msg.sender).transfer(address(this).balance);
     }
 
-    function cheeperWidraw() public payable onlyOwner {
+    function cheeperWithdraw() public payable onlyOwner {
         address[] memory funders = s_funders;
         for (uint256 funderIndex = 0; funderIndex < funders.length; funderIndex++) {
             address funder = funders[funderIndex];
