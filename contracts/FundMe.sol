@@ -2,7 +2,7 @@
 // Pragma
 pragma solidity ^0.8.9;
 // Imports
-import "hardhat/console.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "./PriceConverter.sol";
 // Error Codes
 error FundMe__NotOwner();
@@ -20,7 +20,7 @@ contract FundMe {
 
     // State variables
     address private immutable i_owner;
-    uint256 public constant MINIMUM_USD = 50 * 1e18;
+    uint256 public constant MINIMUM_USD = 50 * 1e18; // 1e18 == 1 * 10 ** 18 == 1_000_000_000_000_000_000
     address[] private s_funders;
     mapping(address => uint256) private s_addressToAmountFunded;
     AggregatorV3Interface private s_priceFeed;

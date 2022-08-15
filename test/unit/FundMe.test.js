@@ -1,5 +1,3 @@
-//const { time, loadFixture } = require("@nomicfoundation/hardhat-network-helpers")
-//const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs")
 const { deployments, getNamedAccounts, ethers, network } = require("hardhat")
 const { assert, expect } = require("chai")
 const { developementChains } = require("../../helper-hardhat-config")
@@ -7,27 +5,11 @@ const { developementChains } = require("../../helper-hardhat-config")
 !developementChains.includes(network.name)
     ? describe.skip
     : describe("FundMe", async () => {
-          /*
-    async function deployedContract() {
-        const sendValue = ethers.utils.parseEther("1") // 1ETH or 1000000000000000000 wei
-
-        //const accounts = await ethers.getSigners()
-        //const accountZero = accounts[0]
-        //const [deployer, superCoder] = await ethers.getSigners()
-        const { deployer, superCoder } = await getNamedAccounts()
-        await deployments.fixture(["all"])
-        const FundMe = await ethers.getContract("FundMe", deployer)
-        const MockV3Aggregator = await ethers.getContract("MockV3Aggregator", deployer)
-
-        return { deployer, superCoder, FundMe, MockV3Aggregator, sendValue }
-    }
-    */
           let FundMe
           let MockV3Aggregator
           let deployer
-          const sendValue = ethers.utils.parseEther("0.3") // 1ETH or 1000000000000000000 wei
+          const sendValue = ethers.utils.parseEther("0.1") // 1ETH or 1_000000000000000000 wei
           beforeEach(async () => {
-              //{ deployer, superCoder } = await getNamedAccounts()
               deployer = (await getNamedAccounts()).deployer
               await deployments.fixture(["all"])
               FundMe = await ethers.getContract("FundMe", deployer)
@@ -36,14 +18,10 @@ const { developementChains } = require("../../helper-hardhat-config")
 
           describe("constructor", async () => {
               it("Should set the right owner", async () => {
-                  //const { FundMe, deployer } = await loadFixture(deployedContract)
-
                   const response = await FundMe.getOwner()
                   expect(response, deployer.address)
               })
               it("Sets the aggregator addresses correctly", async () => {
-                  //const { FundMe, MockV3Aggregator } = await loadFixture(deployedContract)
-
                   const response = await FundMe.getPriceFeed()
                   await assert.equal(response, MockV3Aggregator.address)
               })
@@ -51,14 +29,10 @@ const { developementChains } = require("../../helper-hardhat-config")
 
           describe("fund", async () => {
               it("Fails if you don't send enough ETH", async () => {
-                  //const { FundMe } = await loadFixture(deployedContract)
-
                   await expect(FundMe.fund()).to.be.revertedWith("You need to spend more ETH!")
               })
 
               it("Updates the amount funded data structure", async () => {
-                  //const { FundMe, deployer, sendValue } = await loadFixture(deployedContract)
-
                   await FundMe.fund({ value: sendValue })
                   const response = await FundMe.getAddressToAmountFunded(deployer)
                   assert.equal(response.toString(), sendValue.toString())
@@ -84,7 +58,7 @@ const { developementChains } = require("../../helper-hardhat-config")
                   const transactionResponse = await FundMe.withdraw()
                   const transactionReceipt = await transactionResponse.wait(1)
 
-                  // Gascost
+                  // Gas-cost
                   const { gasUsed, effectiveGasPrice } = transactionReceipt
                   const gasCost = gasUsed.mul(effectiveGasPrice)
 
@@ -155,7 +129,7 @@ const { developementChains } = require("../../helper-hardhat-config")
                   const transactionResponse = await FundMe.cheeperWithdraw()
                   const transactionReceipt = await transactionResponse.wait(1)
 
-                  // Gascost
+                  // Gas-cost
                   const { gasUsed, effectiveGasPrice } = transactionReceipt
                   const gasCost = gasUsed.mul(effectiveGasPrice)
 
