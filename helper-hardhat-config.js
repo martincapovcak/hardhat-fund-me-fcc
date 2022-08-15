@@ -5,7 +5,7 @@
 const networkConfig = {
     4: {
         name: "rinkeby",
-        ethUsdPriceFeed: "0x0a87e12689374A4EF49729582B474a1013cceBf8", //chainlink data-feed address
+        ethUsdPriceFeed: "0x8A753747A1Fa494EC906cE90E9f37563A8AF630e", //chainlink data-feed address
     },
     137: {
         name: "polygon",
@@ -15,8 +15,8 @@ const networkConfig = {
 }
 
 const developementChains = ["hardhat", "localhost"]
-const DECIMALS = 8
-const INITIAL_ANSWER = 200000000000
+const DECIMALS = "8"
+const INITIAL_ANSWER = "200000000000"
 
 module.exports = {
     networkConfig,
