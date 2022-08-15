@@ -7,7 +7,7 @@ developementChains.includes(network.name)
     : describe("FundMe", async () => {
           let FundMe
           let deployer
-          const sendValue = ethers.utils.parseEther("0.3")
+          const sendValue = ethers.utils.parseEther("0.5")
           beforeEach(async () => {
               deployer = (await getNamedAccounts()).deployer
               FundMe = await ethers.getContract("FundMe", deployer)
